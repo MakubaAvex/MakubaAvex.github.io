@@ -4,142 +4,210 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AVEX – Herní portál</title>
+
+<title>Avex – Herní portál</title>
 
 <style>
 * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    margin: 0;
     font-family: Arial, sans-serif;
     background: #101116;
     color: #f5f6fa;
+    min-height: 100vh;
 }
 
 header {
     height: 75px;
-    padding: 0 8%;
+    padding: 0 7%;
     display: flex;
     align-items: center;
     border-bottom: 1px solid #292b35;
+    background: #15161d;
 }
 
 .logo {
-    font-size: 30px;
-    font-weight: 900;
-    letter-spacing: 3px;
-    color: #4285ff;
+    font-size: 29px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #ffffff;
 }
 
 .hero {
     text-align: center;
-    padding: 110px 20px 100px;
-    background: linear-gradient(180deg, #191c27, #101116);
+    padding: 85px 20px 65px;
 }
 
 .hero h1 {
-    font-size: 52px;
-    margin: 0 0 20px;
+    font-size: 46px;
+    margin-bottom: 15px;
 }
 
 .hero p {
     color: #a1a5b3;
     font-size: 18px;
-    max-width: 600px;
-    margin: 0 auto 30px;
-    line-height: 1.6;
 }
 
-.button {
-    display: inline-block;
-    background: #4285ff;
-    color: white;
-    padding: 14px 25px;
-    border-radius: 7px;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.button:hover {
-    background: #70a5ff;
-}
-
-main {
+.library {
     max-width: 1150px;
     margin: auto;
-    padding: 60px 25px;
+    padding: 25px 25px 80px;
 }
 
-.section-title {
+.library h2 {
     font-size: 30px;
     margin-bottom: 25px;
 }
 
 .search {
     width: 100%;
-    padding: 16px;
+    padding: 16px 20px;
     background: #191b24;
     border: 1px solid #303340;
-    border-radius: 8px;
+    border-radius: 10px;
     color: white;
     font-size: 16px;
-    margin-bottom: 30px;
     outline: none;
+    margin-bottom: 22px;
 }
 
 .search:focus {
     border-color: #4285ff;
 }
 
+.categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.category {
+    border: 1px solid #303340;
+    background: #191b24;
+    color: #c5c8d2;
+    padding: 11px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.category:hover {
+    background: #252936;
+    color: white;
+}
+
+.category.active {
+    background: #4285ff;
+    border-color: #4285ff;
+    color: white;
+}
+
 .games {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 22px;
 }
 
 .game {
     background: #191b24;
-    border: 1px solid #292c38;
+    border: 1px solid #292c37;
     border-radius: 12px;
-    padding: 30px;
-    transition: 0.2s;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
 }
 
 .game:hover {
-    transform: translateY(-5px);
+    transform: translateY(-4px);
     border-color: #4285ff;
 }
 
-.game .icon {
-    font-size: 38px;
+.game a {
+    display: block;
+    color: white;
+    text-decoration: none;
+}
+
+.game-image {
+    height: 155px;
+    background: #252936;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.tile-board {
+    width: 125px;
+    height: 125px;
+    padding: 7px;
+    background: #bbada0;
+    border-radius: 8px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 5px;
+}
+
+.tile {
+    background: #cdc1b4;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #776e65;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.tile.highlight {
+    background: #edc53f;
+    color: white;
+    font-size: 11px;
 }
 
 .game h3 {
-    margin-bottom: 10px;
+    padding: 15px;
+    font-size: 18px;
 }
 
-.game p {
-    color: #a1a5b3;
-    line-height: 1.5;
-}
-
-.empty {
-    color: #a1a5b3;
+.no-results {
     display: none;
+    color: #a1a5b3;
+    text-align: center;
+    padding: 45px 10px;
+    grid-column: 1 / -1;
 }
 
 footer {
     border-top: 1px solid #292b35;
-    text-align: center;
     padding: 25px;
-    color: #777d8c;
+    text-align: center;
+    color: #777d8d;
 }
 
 @media (max-width: 600px) {
     .hero h1 {
-        font-size: 36px;
+        font-size: 34px;
+    }
+
+    .library {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .games {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .game-image {
+        height: 125px;
     }
 }
 </style>
@@ -148,77 +216,165 @@ footer {
 <body>
 
 <header>
-    <div class="logo">AVEX</div>
+    <div class="logo">Avex</div>
 </header>
 
 <section class="hero">
-    <h1>Vítej v AVEX</h1>
-    <p>
-        Objev svůj další svět. Prozkoumej herní knihovnu,
-        najdi nové hry a připrav se na dobrodružství.
-    </p>
-    <a href="#hry" class="button">Prozkoumat hry</a>
+    <h1>Vítej v Avex</h1>
+    <p>Objev svůj další svět.</p>
 </section>
 
-<main id="hry">
-    <h2 class="section-title">Herní knihovna</h2>
+<main class="library">
+
+    <h2>Herní knihovna</h2>
 
     <input
-        type="text"
+        type="search"
         id="search"
         class="search"
-        placeholder="Hledat hry nebo kategorie..."
+        placeholder="Hledat hry..."
+        autocomplete="off"
     >
+
+    <div class="categories">
+
+        <button class="category active" data-category="all">
+            Všechny hry
+        </button>
+
+        <button class="category" data-category="action">
+            Akční hry
+        </button>
+
+        <button class="category" data-category="strategy">
+            Strategické hry
+        </button>
+
+        <button class="category" data-category="adventure">
+            Dobrodružné hry
+        </button>
+
+        <button class="category" data-category="logic">
+            Logické hry
+        </button>
+
+    </div>
 
     <div class="games" id="games">
 
-        <div class="game" data-search="akční hry akce">
-            <div class="icon">⚔️</div>
-            <h3>Akční hry</h3>
-            <p>Hry plné akce, soubojů a dobrodružství.</p>
-        </div>
+        <!-- 2048 -->
+        <article class="game"
+                 data-category="logic"
+                 data-name="2048 logická hra čísla">
 
-        <div class="game" data-search="strategické hry strategie">
-            <div class="icon">♟️</div>
-            <h3>Strategické hry</h3>
-            <p>Naplánuj své kroky a vybuduj vítěznou strategii.</p>
-        </div>
+            <a href="game/2048.html" aria-label="Hrát 2048">
 
-        <div class="game" data-search="dobrodružné hry dobrodružství">
-            <div class="icon">🌍</div>
-            <h3>Dobrodružné hry</h3>
-            <p>Objevuj nové světy a zažívej nečekaná dobrodružství.</p>
+                <div class="game-image">
+
+                    <div class="tile-board">
+                        <div class="tile">2</div>
+                        <div class="tile">4</div>
+                        <div class="tile"></div>
+                        <div class="tile">2</div>
+
+                        <div class="tile">8</div>
+                        <div class="tile"></div>
+                        <div class="tile">4</div>
+                        <div class="tile"></div>
+
+                        <div class="tile"></div>
+                        <div class="tile highlight">2048</div>
+                        <div class="tile">8</div>
+                        <div class="tile"></div>
+
+                        <div class="tile">2</div>
+                        <div class="tile"></div>
+                        <div class="tile"></div>
+                        <div class="tile">4</div>
+                    </div>
+
+                </div>
+
+                <h3>2048</h3>
+
+            </a>
+
+        </article>
+
+        <div class="no-results" id="noResults">
+            Žádné hry jsme nenašli.
         </div>
 
     </div>
 
-    <p class="empty" id="empty">Nic jsme nenašli. Zkus jiný název.</p>
 </main>
 
 <footer>
-    © 2026 AVEX
+    Avex
 </footer>
 
 <script>
 const search = document.getElementById("search");
+const categoryButtons = document.querySelectorAll(".category");
 const games = document.querySelectorAll(".game");
-const empty = document.getElementById("empty");
+const noResults = document.getElementById("noResults");
 
-search.addEventListener("input", function () {
-    const value = search.value.toLowerCase().trim();
-    let visible = 0;
+let selectedCategory = "all";
+
+function normalize(text) {
+    return text
+        .toLocaleLowerCase("cs")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+}
+
+function filterGames() {
+    const searchText = normalize(search.value.trim());
+    let visibleCount = 0;
 
     games.forEach(game => {
-        const text = game.dataset.search.toLowerCase();
-        const matches = text.includes(value);
+        const category = game.dataset.category;
+        const name = normalize(
+            game.dataset.name + " " + game.textContent
+        );
 
-        game.style.display = matches ? "block" : "none";
+        const matchesCategory =
+            selectedCategory === "all" ||
+            category === selectedCategory;
 
-        if (matches) visible++;
+        const matchesSearch =
+            name.includes(searchText);
+
+        const visible = matchesCategory && matchesSearch;
+
+        game.style.display = visible ? "" : "none";
+
+        if (visible) {
+            visibleCount++;
+        }
     });
 
-    empty.style.display = visible === 0 ? "block" : "none";
+    noResults.style.display =
+        visibleCount === 0 ? "block" : "none";
+}
+
+categoryButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        categoryButtons.forEach(item => {
+            item.classList.remove("active");
+        });
+
+        button.classList.add("active");
+
+        selectedCategory = button.dataset.category;
+
+        filterGames();
+    });
 });
+
+search.addEventListener("input", filterGames);
+
+filterGames();
 </script>
 
 </body>
