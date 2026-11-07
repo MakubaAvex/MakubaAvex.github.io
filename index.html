@@ -1,4 +1,279 @@
 
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avex – Herní portál</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #101116;
+    color: #f5f6fa;
+    min-height: 100vh;
+}
+
+header {
+    height: 70px;
+    padding: 0 7%;
+    display: flex;
+    align-items: center;
+    background: #15161d;
+    border-bottom: 1px solid #292b35;
+}
+
+.logo {
+    color: white;
+    text-decoration: none;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+main {
+    width: 86%;
+    max-width: 1200px;
+    margin: 55px auto;
+}
+
+.hero {
+    margin-bottom: 40px;
+}
+
+.hero h1 {
+    font-size: 38px;
+    margin-bottom: 12px;
+}
+
+.hero p {
+    color: #a1a5b3;
+    font-size: 16px;
+}
+
+.search-box {
+    margin: 30px 0;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 16px 18px;
+    border-radius: 9px;
+    border: 1px solid #303340;
+    outline: none;
+    background: #191b24;
+    color: white;
+    font-size: 16px;
+}
+
+.search-box input:focus {
+    border-color: #4285ff;
+}
+
+.categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 35px;
+}
+
+.category {
+    padding: 11px 17px;
+    border: 1px solid #303340;
+    border-radius: 8px;
+    background: #191b24;
+    color: #c4c7d1;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.category:hover {
+    background: #222633;
+}
+
+.category.active {
+    background: #4285ff;
+    border-color: #4285ff;
+    color: white;
+}
+
+.section-title {
+    font-size: 24px;
+    margin-bottom: 22px;
+}
+
+.games {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 22px;
+}
+
+.game {
+    background: #191b24;
+    border: 1px solid #292d3a;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: 0.2s;
+}
+
+.game:hover {
+    transform: translateY(-4px);
+    border-color: #4285ff;
+}
+
+.game a {
+    display: block;
+    text-decoration: none;
+    color: white;
+}
+
+.game-image {
+    height: 155px;
+    background: #222633;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.game h3 {
+    padding: 17px;
+    font-size: 18px;
+}
+
+.game[hidden] {
+    display: none !important;
+}
+
+.no-results {
+    display: none;
+    color: #a1a5b3;
+    text-align: center;
+    padding: 35px 10px;
+}
+
+@media (max-width: 600px) {
+    main {
+        width: 90%;
+        margin-top: 35px;
+    }
+
+    .hero h1 {
+        font-size: 30px;
+    }
+
+    .games {
+        grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+        gap: 13px;
+    }
+
+    .game-image {
+        height: 125px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <a class="logo" href="index.html">Avex</a>
+</header>
+
+<main>
+
+    <section class="hero">
+        <h1>Vítej na Avexu</h1>
+        <p>Objevuj hry a zahraj si přímo ve svém prohlížeči.</p>
+    </section>
+
+    <div class="search-box">
+        <input
+            type="text"
+            id="search"
+            placeholder="Hledat hry..."
+            autocomplete="off"
+        >
+    </div>
+
+    <div class="categories">
+        <button class="category active" data-category="all">Všechny hry</button>
+        <button class="category" data-category="action">Akční hry</button>
+        <button class="category" data-category="strategy">Strategické hry</button>
+        <button class="category" data-category="adventure">Dobrodružné hry</button>
+        <button class="category" data-category="logic">Logické hry</button>
+    </div>
+
+    <h2 class="section-title">Herní knihovna</h2>
+
+    <div class="games" id="games">
+
+        <!-- 2048 -->
+        <article class="game"
+                 data-category="logic"
+                 data-name="2048 logická hra čísla">
+
+            <a href="game/2048.html">
+                <div class="game-image">
+                    <div style="
+                        display:grid;
+                        grid-template-columns:repeat(2,65px);
+                        gap:7px;
+                        transform:rotate(-6deg);
+                    ">
+                        <div style="background:#eee4da;color:#776e65;padding:18px 0;text-align:center;border-radius:7px;font-size:22px;font-weight:bold;">2</div>
+                        <div style="background:#ede0c8;color:#776e65;padding:18px 0;text-align:center;border-radius:7px;font-size:22px;font-weight:bold;">4</div>
+                        <div style="background:#f2b179;color:white;padding:18px 0;text-align:center;border-radius:7px;font-size:22px;font-weight:bold;">8</div>
+                        <div style="background:#edcf72;color:white;padding:18px 0;text-align:center;border-radius:7px;font-size:22px;font-weight:bold;">16</div>
+                    </div>
+                </div>
+                <h3>2048</h3>
+            </a>
+        </article>
+
+        <!-- Tetris -->
+        <article class="game"
+                 data-category="logic"
+                 data-name="tetris logická hra kostky">
+
+            <a href="game/tetris.html">
+                <div class="game-image">
+                    <div style="
+                        display:grid;
+                        grid-template-columns:repeat(4,27px);
+                        gap:4px;
+                        transform:rotate(-8deg);
+                    ">
+                        <div style="background:#36c5f0;height:27px;border-radius:4px"></div>
+                        <div style="background:#36c5f0;height:27px;border-radius:4px"></div>
+                        <div style="background:#36c5f0;height:27px;border-radius:4px"></div>
+                        <div style="background:#36c5f0;height:27px;border-radius:4px"></div>
+                        <div style="background:#f5a623;height:27px;border-radius:4px"></div>
+                        <div style="background:#f5a623;height:27px;border-radius:4px"></div>
+                        <div style="background:#45c878;height:27px;border-radius:4px"></div>
+                        <div style="background:#45c878;height:27px;border-radius:4px"></div>
+                        <div style="background:#b45cff;height:27px;border-radius:4px"></div>
+                        <div style="background:#b45cff;height:27px;border-radius:4px"></div>
+                        <div style="background:#b45cff;height:27px;border-radius:4px"></div>
+                    </div>
+                </div>
+                <h3>Tetris</h3>
+            </a>
+        </article>
+
+    </div>
+
+    <div class="no-results" id="noResults">
+        Žádné hry nebyly nalezeny.
+    </div>
+
+</main>
+
 <script>
 const search = document.getElementById("search");
 const categoryButtons = document.querySelectorAll(".category");
@@ -59,3 +334,6 @@ categoryButtons.forEach(function(button) {
 
 filterGames();
 </script>
+
+</body>
+</html>
