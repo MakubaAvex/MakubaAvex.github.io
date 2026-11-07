@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Avex – Herní portál</title>
+<title>2048 – Avex</title>
 
 <style>
 * {
@@ -13,388 +13,368 @@
 
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    min-height: 100vh;
     background: #101116;
     color: #f5f6fa;
-}
-
-header {
-    height: 75px;
-    padding: 0 8%;
+    font-family: Arial, sans-serif;
     display: flex;
+    justify-content: center;
     align-items: center;
-    border-bottom: 1px solid #292b35;
+    padding: 20px;
 }
 
-.logo {
-    font-size: 30px;
-    font-weight: 900;
-    letter-spacing: 3px;
-    color: #4285ff;
+.container {
+    width: 100%;
+    max-width: 470px;
 }
 
-.hero {
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 42px;
+    margin: 0;
+    color: #70a5ff;
+}
+
+.score-box {
+    background: #191b24;
+    padding: 10px 16px;
+    border-radius: 10px;
     text-align: center;
-    padding: 110px 20px 100px;
-    background: linear-gradient(180deg, #191c27, #101116);
 }
 
-.hero h1 {
-    font-size: 52px;
-    margin: 0 0 20px;
-}
-
-.hero p {
+.score-box span {
+    display: block;
     color: #a1a5b3;
-    font-size: 18px;
-    max-width: 600px;
-    margin: 0 auto 30px;
-    line-height: 1.6;
+    font-size: 12px;
 }
 
-.button {
-    display: inline-block;
+.score-box strong {
+    font-size: 22px;
+}
+
+button {
+    border: none;
+    border-radius: 9px;
     background: #4285ff;
     color: white;
-    padding: 14px 25px;
-    border-radius: 7px;
-    text-decoration: none;
-    font-weight: bold;
-    border: none;
+    padding: 11px 17px;
+    font-size: 15px;
     cursor: pointer;
+    font-weight: bold;
 }
 
-.button:hover {
+button:hover {
     background: #70a5ff;
 }
 
-main {
-    max-width: 1150px;
-    margin: auto;
-    padding: 60px 25px;
-}
-
-.section-title {
-    font-size: 30px;
-    margin-bottom: 25px;
-}
-
-.search {
-    width: 100%;
-    padding: 16px;
-    background: #191b24;
-    border: 1px solid #303340;
-    border-radius: 8px;
-    color: white;
-    font-size: 16px;
-    margin-bottom: 30px;
-    outline: none;
-}
-
-.search:focus {
-    border-color: #4285ff;
-}
-
-.games {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 20px;
-}
-
-.category {
-    background: #191b24;
-    border: 1px solid #292c38;
-    border-radius: 12px;
-    padding: 30px;
-    transition: 0.2s;
-    cursor: pointer;
-}
-
-.category:hover {
-    transform: translateY(-5px);
-    border-color: #4285ff;
-}
-
-.category .icon {
-    font-size: 38px;
-}
-
-.category h3 {
-    margin-bottom: 10px;
-}
-
-.category p {
+.description {
     color: #a1a5b3;
     line-height: 1.5;
+    margin: 15px 0;
 }
 
-.back {
-    margin-bottom: 25px;
-}
-
-.game-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-    gap: 22px;
-}
-
-.game-card {
-    color: white;
-    text-decoration: none;
-    display: block;
-    transition: 0.2s;
-}
-
-.game-card:hover {
-    transform: translateY(-5px);
-}
-
-.game-image {
-    width: 100%;
-    aspect-ratio: 4 / 3;
+.board {
     background: #191b24;
-    border: 1px solid #303340;
     border-radius: 12px;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    aspect-ratio: 1;
+}
+
+.cell {
+    background: #292c38;
+    border-radius: 8px;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 7px;
-    flex-wrap: wrap;
-    padding: 15px;
-    overflow: hidden;
-}
-
-.tile {
-    width: 65px;
-    height: 65px;
-    border-radius: 9px;
-    background: #edc22e;
-    color: #333;
-    font-size: 25px;
+    font-size: clamp(20px, 7vw, 34px);
     font-weight: bold;
+    color: #f5f6fa;
+}
+
+.v2 { background: #454b5b; }
+.v4 { background: #59677f; }
+.v8 { background: #356dbb; }
+.v16 { background: #285ca8; }
+.v32 { background: #214b8b; }
+.v64 { background: #183b70; }
+.v128 { background: #987b32; font-size: clamp(18px, 6vw, 29px); }
+.v256 { background: #b18b27; font-size: clamp(18px, 6vw, 29px); }
+.v512 { background: #c69a24; font-size: clamp(18px, 6vw, 29px); }
+.v1024 { background: #d2a51e; font-size: clamp(15px, 5vw, 25px); }
+.v2048 { background: #e6b817; color: #171717; font-size: clamp(15px, 5vw, 25px); }
+
+.message {
+    text-align: center;
+    min-height: 30px;
+    margin: 15px 0;
+    color: #70a5ff;
+    font-weight: bold;
+}
+
+.bottom {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
+    margin-top: 15px;
+    gap: 10px;
 }
 
-.tile.t2 {
-    background: #eee4da;
+a {
+    color: #70a5ff;
+    text-decoration: none;
 }
 
-.tile.t4 {
-    background: #ede0c8;
+a:hover {
+    text-decoration: underline;
 }
 
-.tile.t8 {
-    background: #f2b179;
-    color: white;
-}
-
-.game-card h3 {
-    text-align: center;
-    margin-top: 12px;
-    font-size: 19px;
-}
-
-.empty {
-    color: #a1a5b3;
-    display: none;
-}
-
-footer {
-    border-top: 1px solid #292b35;
-    text-align: center;
-    padding: 25px;
-    color: #777d8c;
-}
-
-@media (max-width: 600px) {
-    .hero h1 {
-        font-size: 36px;
-    }
+@media (max-width: 380px) {
+    .board { gap: 6px; padding: 7px; }
 }
 </style>
 </head>
 
 <body>
 
-<header>
-    <div class="logo">Avex</div>
-</header>
+<div class="container">
 
-<section class="hero" id="hero">
-    <h1>Vítej v Avex</h1>
-    <p>
-        Objev svůj další svět. Prozkoumej herní knihovnu,
-        najdi nové hry a připrav se na dobrodružství.
-    </p>
-    <a href="#hry" class="button">Prozkoumat hry</a>
-</section>
+    <div class="top">
+        <h1>2048</h1>
 
-<main id="hry">
-
-    <section id="library">
-        <h2 class="section-title">Herní knihovna</h2>
-
-        <input
-            type="text"
-            id="search"
-            class="search"
-            placeholder="Hledat hry nebo kategorie..."
-        >
-
-        <div class="games" id="categories">
-
-            <div class="category" data-search="akční hry akce"
-                 onclick="openCategory('action')">
-                <div class="icon">⚔️</div>
-                <h3>Akční hry</h3>
-                <p>Hry plné akce, soubojů a dobrodružství.</p>
-            </div>
-
-            <div class="category" data-search="strategické hry strategie"
-                 onclick="openCategory('strategy')">
-                <div class="icon">♟️</div>
-                <h3>Strategické hry</h3>
-                <p>Naplánuj své kroky a vybuduj vítěznou strategii.</p>
-            </div>
-
-            <div class="category" data-search="dobrodružné hry dobrodružství"
-                 onclick="openCategory('adventure')">
-                <div class="icon">🌍</div>
-                <h3>Dobrodružné hry</h3>
-                <p>Objevuj nové světy a zažívej nečekaná dobrodružství.</p>
-            </div>
-
-            <div class="category" data-search="logické hry logika hlavolamy 2048"
-                 onclick="openCategory('logic')">
-                <div class="icon">🧩</div>
-                <h3>Logické hry</h3>
-                <p>Procvič si logiku, přemýšlení a řešení úkolů.</p>
-            </div>
-
+        <div class="score-box">
+            <span>SKÓRE</span>
+            <strong id="score">0</strong>
         </div>
+    </div>
 
-        <p class="empty" id="empty">
-            Nic jsme nenašli. Zkus jiný název.
-        </p>
-    </section>
+    <button onclick="newGame()">Nová hra</button>
 
-    <section id="categoryPage" style="display:none">
+    <p class="description">
+        Spojuj stejné číselné dlaždice pomocí šipek na klávesnici.
+        Cílem je vytvořit číslo 2048!
+    </p>
 
-        <button class="button back" onclick="backToLibrary()">
-            ← Zpět do knihovny
-        </button>
+    <div class="board" id="board"></div>
 
-        <h2 class="section-title" id="categoryTitle"></h2>
+    <div class="message" id="message"></div>
 
-        <div class="game-grid" id="gameGrid"></div>
+    <div class="bottom">
+        <a href="../index.html">← Zpět do Avex</a>
 
-        <p class="empty" id="gameEmpty">
-            V této kategorii zatím nejsou žádné hry.
-        </p>
+        <div class="score-box">
+            <span>NEJLEPŠÍ SKÓRE</span>
+            <strong id="best">0</strong>
+        </div>
+    </div>
 
-    </section>
-
-</main>
-
-<footer>
-    © 2026 Avex
-</footer>
+</div>
 
 <script>
-const search = document.getElementById("search");
-const categories = document.querySelectorAll(".category");
-const empty = document.getElementById("empty");
+let grid = [];
+let score = 0;
+let best = Number(localStorage.getItem("avex2048best")) || 0;
+let won = false;
+let gameOver = false;
 
-const library = document.getElementById("library");
-const categoryPage = document.getElementById("categoryPage");
-const categoryTitle = document.getElementById("categoryTitle");
-const gameGrid = document.getElementById("gameGrid");
-const gameEmpty = document.getElementById("gameEmpty");
+const board = document.getElementById("board");
 
-const categoryNames = {
-    action: "Akční hry",
-    strategy: "Strategické hry",
-    adventure: "Dobrodružné hry",
-    logic: "Logické hry"
-};
+function newGame() {
+    grid = Array.from({length: 4}, () => [0, 0, 0, 0]);
+    score = 0;
+    won = false;
+    gameOver = false;
 
-const gameList = {
-    logic: [
-        {
-            name: "2048",
-            url: "game/2048.html",
-            search: "2048 logická hra"
-        }
-    ],
-    action: [],
-    strategy: [],
-    adventure: []
-};
+    document.getElementById("message").textContent = "";
 
-function openCategory(category) {
-    library.style.display = "none";
-    document.getElementById("hero").style.display = "none";
-    categoryPage.style.display = "block";
-
-    categoryTitle.textContent = categoryNames[category];
-    gameGrid.innerHTML = "";
-
-    const games = gameList[category] || [];
-
-    games.forEach(game => {
-        const link = document.createElement("a");
-        link.className = "game-card";
-        link.href = game.url;
-
-        const image = document.createElement("div");
-        image.className = "game-image";
-
-        if (game.name === "2048") {
-            image.innerHTML = `
-                <div class="tile t2">2</div>
-                <div class="tile t4">4</div>
-                <div class="tile t8">8</div>
-                <div class="tile">2048</div>
-            `;
-        }
-
-        const title = document.createElement("h3");
-        title.textContent = game.name;
-
-        link.appendChild(image);
-        link.appendChild(title);
-        gameGrid.appendChild(link);
-    });
-
-    gameEmpty.style.display = games.length === 0 ? "block" : "none";
-
-    window.scrollTo(0, 0);
+    addTile();
+    addTile();
+    draw();
 }
 
-function backToLibrary() {
-    categoryPage.style.display = "none";
-    library.style.display = "block";
-    document.getElementById("hero").style.display = "block";
-    window.scrollTo(0, 0);
+function addTile() {
+    let empty = [];
+
+    for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+            if (grid[r][c] === 0) {
+                empty.push([r, c]);
+            }
+        }
+    }
+
+    if (empty.length === 0) return;
+
+    let [r, c] = empty[Math.floor(Math.random() * empty.length)];
+    grid[r][c] = Math.random() < 0.9 ? 2 : 4;
 }
 
-search.addEventListener("input", function () {
-    const value = search.value.toLowerCase().trim();
-    let visible = 0;
+function draw() {
+    board.innerHTML = "";
 
-    categories.forEach(category => {
-        const text = category.dataset.search.toLowerCase();
-        const matches = text.includes(value);
+    for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+            let value = grid[r][c];
+            let cell = document.createElement("div");
 
-        category.style.display = matches ? "block" : "none";
+            cell.className = "cell";
 
-        if (matches) visible++;
-    });
+            if (value > 0) {
+                cell.textContent = value;
+                cell.classList.add("v" + value);
+            }
 
-    empty.style.display = visible === 0 ? "block" : "none";
+            board.appendChild(cell);
+        }
+    }
+
+    document.getElementById("score").textContent = score;
+    document.getElementById("best").textContent = best;
+}
+
+function slide(row) {
+    let arr = row.filter(x => x !== 0);
+
+    for (let i = 0; i < arr.length - 1; i++) {
+        if (arr[i] === arr[i + 1]) {
+            arr[i] *= 2;
+            score += arr[i];
+            arr.splice(i + 1, 1);
+
+            if (arr[i] === 2048 && !won) {
+                won = true;
+                document.getElementById("message").textContent =
+                    "Gratulujeme! Dosáhl jsi 2048!";
+            }
+        }
+    }
+
+    while (arr.length < 4) arr.push(0);
+
+    return arr;
+}
+
+function move(direction) {
+    if (gameOver) return;
+
+    let old = JSON.stringify(grid);
+
+    if (direction === "left") {
+        for (let r = 0; r < 4; r++) {
+            grid[r] = slide(grid[r]);
+        }
+    }
+
+    if (direction === "right") {
+        for (let r = 0; r < 4; r++) {
+            grid[r] = slide(grid[r].slice().reverse()).reverse();
+        }
+    }
+
+    if (direction === "up") {
+        for (let c = 0; c < 4; c++) {
+            let column = [];
+
+            for (let r = 0; r < 4; r++) {
+                column.push(grid[r][c]);
+            }
+
+            column = slide(column);
+
+            for (let r = 0; r < 4; r++) {
+                grid[r][c] = column[r];
+            }
+        }
+    }
+
+    if (direction === "down") {
+        for (let c = 0; c < 4; c++) {
+            let column = [];
+
+            for (let r = 0; r < 4; r++) {
+                column.push(grid[r][c]);
+            }
+
+            column = slide(column.reverse()).reverse();
+
+            for (let r = 0; r < 4; r++) {
+                grid[r][c] = column[r];
+            }
+        }
+    }
+
+    if (old !== JSON.stringify(grid)) {
+        addTile();
+    }
+
+    if (score > best) {
+        best = score;
+        localStorage.setItem("avex2048best", best);
+    }
+
+    draw();
+    checkGameOver();
+}
+
+function checkGameOver() {
+    for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+            if (grid[r][c] === 0) return;
+
+            if (c < 3 && grid[r][c] === grid[r][c + 1]) return;
+            if (r < 3 && grid[r][c] === grid[r + 1][c]) return;
+        }
+    }
+
+    gameOver = true;
+    document.getElementById("message").textContent =
+        "Konec hry! Zkus to znovu.";
+}
+
+document.addEventListener("keydown", function(e) {
+    const keys = {
+        ArrowLeft: "left",
+        ArrowRight: "right",
+        ArrowUp: "up",
+        ArrowDown: "down"
+    };
+
+    if (keys[e.key]) {
+        e.preventDefault();
+        move(keys[e.key]);
+    }
 });
+
+let touchStartX = 0;
+let touchStartY = 0;
+
+board.addEventListener("touchstart", function(e) {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+}, {passive: true});
+
+board.addEventListener("touchend", function(e) {
+    let dx = e.changedTouches[0].screenX - touchStartX;
+    let dy = e.changedTouches[0].screenY - touchStartY;
+
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 25) return;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+        move(dx > 0 ? "right" : "left");
+    } else {
+        move(dy > 0 ? "down" : "up");
+    }
+}, {passive: true});
+
+newGame();
 </script>
 
 </body>
