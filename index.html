@@ -1,351 +1,61 @@
 
-<!DOCTYPE html>
-<html lang="cs">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Avex – Herní portál</title>
-
-<style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    font-family: Arial, sans-serif;
-    background: #101116;
-    color: #f5f6fa;
-    min-height: 100vh;
-}
-
-header {
-    height: 75px;
-    padding: 0 7%;
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid #292b35;
-    background: #15161d;
-}
-
-.logo {
-    font-size: 29px;
-    font-weight: bold;
-    letter-spacing: 1px;
-    color: #fff;
-}
-
-.hero {
-    text-align: center;
-    padding: 85px 20px 65px;
-}
-
-.hero h1 {
-    font-size: 46px;
-    margin-bottom: 15px;
-}
-
-.hero p {
-    color: #a1a5b3;
-    font-size: 18px;
-}
-
-.library {
-    max-width: 1150px;
-    margin: auto;
-    padding: 25px 25px 80px;
-}
-
-.library h2 {
-    font-size: 30px;
-    margin-bottom: 25px;
-}
-
-.search {
-    width: 100%;
-    padding: 16px 20px;
-    background: #191b24;
-    border: 1px solid #303340;
-    border-radius: 10px;
-    color: white;
-    font-size: 16px;
-    outline: none;
-    margin-bottom: 22px;
-}
-
-.search:focus {
-    border-color: #4285ff;
-}
-
-.categories {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 30px;
-}
-
-.category {
-    border: 1px solid #303340;
-    background: #191b24;
-    color: #c5c8d2;
-    padding: 11px 18px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: 0.2s;
-}
-
-.category:hover {
-    background: #252936;
-    color: white;
-}
-
-.category.active {
-    background: #4285ff;
-    border-color: #4285ff;
-    color: white;
-}
-
-.games {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-    gap: 22px;
-}
-
-.game {
-    background: #191b24;
-    border: 1px solid #292c37;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: transform 0.2s, border-color 0.2s;
-}
-
-.game:hover {
-    transform: translateY(-4px);
-    border-color: #4285ff;
-}
-
-.game a {
-    display: block;
-    color: white;
-    text-decoration: none;
-}
-
-.game-image {
-    height: 155px;
-    background: #252936;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-}
-
-.tile-board {
-    width: 125px;
-    height: 125px;
-    padding: 7px;
-    background: #bbada0;
-    border-radius: 8px;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(4, 1fr);
-    gap: 5px;
-}
-
-.tile {
-    background: #cdc1b4;
-    border-radius: 4px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #776e65;
-    font-weight: bold;
-    font-size: 13px;
-}
-
-.tile.highlight {
-    background: #edc53f;
-    color: white;
-    font-size: 11px;
-}
-
-.game h3 {
-    padding: 15px;
-    font-size: 18px;
-}
-
-.no-results {
-    display: none;
-    color: #a1a5b3;
-    text-align: center;
-    padding: 45px 10px;
-    grid-column: 1 / -1;
-}
-
-footer {
-    border-top: 1px solid #292b35;
-    padding: 25px;
-    text-align: center;
-    color: #777d8d;
-}
-
-@media (max-width: 600px) {
-    .hero h1 {
-        font-size: 34px;
-    }
-
-    .library {
-        padding-left: 16px;
-        padding-right: 16px;
-    }
-
-    .games {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-    }
-
-    .game-image {
-        height: 125px;
-    }
-}
-</style>
-</head>
-
-<body>
-
-<header>
-    <div class="logo">Avex</div>
-</header>
-
-<section class="hero">
-    <h1>Vítej v Avex</h1>
-    <p>Objev svůj další svět.</p>
-</section>
-
-<main class="library">
-
-    <h2>Herní knihovna</h2>
-
-    <input
-        type="search"
-        id="search"
-        class="search"
-        placeholder="Hledat hry..."
-        autocomplete="off"
-    >
-
-    <div class="categories">
-        <button class="category active" data-category="all">Všechny hry</button>
-        <button class="category" data-category="action">Akční hry</button>
-        <button class="category" data-category="strategy">Strategické hry</button>
-        <button class="category" data-category="adventure">Dobrodružné hry</button>
-        <button class="category" data-category="logic">Logické hry</button>
-    </div>
-
-    <div class="games" id="games">
-
-        <article class="game"
-                 data-category="logic"
-                 data-name="2048 logická hra čísla">
-            <a href="game/2048.html" aria-label="Hrát 2048">
-                <div class="game-image">
-                    <div class="tile-board">
-                        <div class="tile">2</div>
-                        <div class="tile">4</div>
-                        <div class="tile"></div>
-                        <div class="tile">2</div>
-                        <div class="tile">8</div>
-                        <div class="tile"></div>
-                        <div class="tile">4</div>
-                        <div class="tile"></div>
-                        <div class="tile"></div>
-                        <div class="tile highlight">2048</div>
-                        <div class="tile">8</div>
-                        <div class="tile"></div>
-                        <div class="tile">2</div>
-                        <div class="tile"></div>
-                        <div class="tile"></div>
-                        <div class="tile">4</div>
-                    </div>
-                </div>
-                <h3>2048</h3>
-            </a>
-        </article>
-
-        <div class="no-results" id="noResults">
-            Žádné hry jsme nenašli.
-        </div>
-
-    </div>
-</main>
-
-<footer>Avex</footer>
-
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const search = document.getElementById("search");
-    const categoryButtons = document.querySelectorAll(".category");
-    const games = document.querySelectorAll(".game");
-    const noResults = document.getElementById("noResults");
+const search = document.getElementById("search");
+const categoryButtons = document.querySelectorAll(".category");
+const games = document.querySelectorAll(".game");
+const noResults = document.getElementById("noResults");
 
-    let selectedCategory = "all";
+let selectedCategory = "all";
 
-    function normalize(text) {
-        return text
-            .toLocaleLowerCase("cs")
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "");
-    }
+function normalize(text) {
+    return text
+        .toLocaleLowerCase("cs")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+}
 
-    function filterGames() {
-        const searchText = normalize(search.value.trim());
-        let visibleCount = 0;
+function filterGames() {
+    const searchText = normalize(search.value.trim());
+    let visibleCount = 0;
 
-        games.forEach(function (game) {
-            const category = game.dataset.category || "";
-            const name = normalize(
-                (game.dataset.name || "") + " " + game.textContent
-            );
+    games.forEach(function(game) {
+        const category = game.dataset.category || "";
+        const name = normalize(
+            (game.dataset.name || "") + " " + game.textContent
+        );
 
-            const matchesCategory =
-                selectedCategory === "all" ||
-                category === selectedCategory;
+        const matchesCategory =
+            selectedCategory === "all" ||
+            category === selectedCategory;
 
-            const matchesSearch =
-                name.includes(searchText);
+        const matchesSearch = name.includes(searchText);
 
-            const visible = matchesCategory && matchesSearch;
+        game.hidden = !(matchesCategory && matchesSearch);
 
-            game.hidden = !visible;
-
-            if (visible) {
-                visibleCount++;
-            }
-        });
-
-        noResults.style.display =
-            visibleCount === 0 ? "block" : "none";
-    }
-
-    search.addEventListener("input", filterGames);
-
-    categoryButtons.forEach(function (button) {
-        button.addEventListener("click", function () {
-            categoryButtons.forEach(function (item) {
-                item.classList.remove("active");
-            });
-
-            button.classList.add("active");
-            selectedCategory = button.dataset.category;
-
-            filterGames();
-        });
+        if (!game.hidden) {
+            visibleCount++;
+        }
     });
 
-    filterGames();
-});
-</script>
+    noResults.style.display =
+        visibleCount === 0 ? "block" : "none";
+}
 
-</body>
-</html>
+search.addEventListener("input", filterGames);
+search.addEventListener("keyup", filterGames);
+
+categoryButtons.forEach(function(button) {
+    button.addEventListener("click", function() {
+        categoryButtons.forEach(function(item) {
+            item.classList.remove("active");
+        });
+
+        button.classList.add("active");
+        selectedCategory = button.dataset.category;
+
+        filterGames();
+    });
+});
+
+filterGames();
+</script>
