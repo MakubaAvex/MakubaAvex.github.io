@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="cs">
 <head>
@@ -172,6 +171,58 @@ button:hover {
     text-decoration: underline;
 }
 
+.account-status {
+    color: #a1a5b3;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.leaderboard-panel {
+    display: none;
+    margin-top: 22px;
+    background: #191b24;
+    border: 1px solid #303340;
+    border-radius: 10px;
+    padding: 18px;
+}
+
+.leaderboard-panel h2 {
+    margin-bottom: 12px;
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+    padding: 9px 8px;
+    border-bottom: 1px solid #303340;
+}
+
+.leaderboard-table th {
+    color: #a1a5b3;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.leaderboard-table td:last-child,
+.leaderboard-table th:last-child {
+    text-align: right;
+}
+
+.leaderboard-me {
+    background: rgba(66, 133, 255, 0.14);
+    font-weight: bold;
+}
+
+.leaderboard-message {
+    color: #a1a5b3;
+    line-height: 1.6;
+}
+
 @media (max-width: 650px) {
     .side {
         width: 100%;
@@ -193,6 +244,8 @@ button:hover {
     }
 }
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -229,6 +282,13 @@ button:hover {
             </div>
 
             <div class="panel">
+                <h2>Makuba ID</h2>
+                <div class="account-status" id="accountStatus">Načítání účtu…</div>
+            </div>
+
+            <button class="secondary" onclick="toggleLeaderboard()">Žebříček TOP 100</button>
+
+            <div class="panel">
                 <h2>Úroveň</h2>
                 <div class="value" id="level">1</div>
             </div>
@@ -255,6 +315,11 @@ button:hover {
         </div>
     </div>
 
+    <section class="leaderboard-panel" id="leaderboardPanel">
+        <h2>Žebříček Tetris – TOP 100</h2>
+        <div id="leaderboardContent" class="leaderboard-message">Klikni na „Žebříček TOP 100“ a načti výsledky.</div>
+    </section>
+
     <div class="mobile-controls">
         <button onclick="move(-1)">←</button>
         <button onclick="rotate()">↻</button>
@@ -267,6 +332,10 @@ button:hover {
 </main>
 
 <script>
+const SUPABASE_URL = "https://mghongtuoveswcrezymp.supabase.co";
+const SUPABASE_KEY = "sb_publishable_AKH-a8L3407qbAyqjtwV7Q__DlLMJaY";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 const canvas = document.getElementById("board");
 const ctx = canvas.getContext("2d");
 
@@ -301,13 +370,177 @@ let piece;
 let score;
 let lines;
 let level;
-let best = Number(localStorage.getItem("avexTetrisBest")) || 0;
+let best = 0;
+let remoteBest = 0;
+let currentUser = null;
+let saveTimer = null;
+let leaderboardOpen = false;
 let paused = false;
 let gameOver = false;
 let dropCounter = 0;
 let lastTime = 0;
 
 document.getElementById("best").textContent = best;
+
+async function updateAccount() {
+    const { data, error } = await supabase.auth.getSession();
+
+    if (error) {
+        currentUser = null;
+        document.getElementById("accountStatus").textContent = "Účet se nepodařilo načíst.";
+        return;
+    }
+
+    currentUser = data.session?.user || null;
+
+    if (!currentUser) {
+        remoteBest = 0;
+        best = 0;
+        document.getElementById("best").textContent = "0";
+        document.getElementById("accountStatus").textContent =
+            "Hraješ jako host. Skóre se do Makuba ID neukládá.";
+        return;
+    }
+
+    const username = currentUser.user_metadata?.username ||
+        currentUser.user_metadata?.name ||
+        currentUser.email ||
+        "přihlášený hráč";
+
+    document.getElementById("accountStatus").textContent =
+        "Přihlášen jako " + username;
+
+    await loadMyBest();
+}
+
+async function loadMyBest() {
+    if (!currentUser) return;
+
+    const { data, error } = await supabase.rpc("get_game_leaderboard", {
+        p_game: "tetris"
+    });
+
+    if (error) {
+        console.error("Načtení osobního skóre:", error);
+        document.getElementById("accountStatus").textContent =
+            "Přihlášen. Osobní skóre se nepodařilo načíst.";
+        return;
+    }
+
+    const mine = (data || []).find(row => row.is_me === true);
+    remoteBest = mine ? Number(mine.best_score) : 0;
+    best = remoteBest;
+    document.getElementById("best").textContent = best;
+}
+
+async function saveScore() {
+    if (!currentUser || score <= remoteBest) return;
+
+    const scoreToSave = score;
+
+    const { error } = await supabase.rpc("save_game_score", {
+        p_game: "tetris",
+        p_score: scoreToSave
+    });
+
+    if (error) {
+        console.error("Uložení skóre:", error);
+        document.getElementById("accountStatus").textContent =
+            "Skóre se nepodařilo uložit. Zkontroluj přihlášení.";
+        return;
+    }
+
+    remoteBest = Math.max(remoteBest, scoreToSave);
+    best = remoteBest;
+    document.getElementById("best").textContent = best;
+}
+
+function scheduleScoreSave() {
+    if (!currentUser || score <= remoteBest) return;
+
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveScore, 700);
+}
+
+async function toggleLeaderboard() {
+    const panel = document.getElementById("leaderboardPanel");
+
+    leaderboardOpen = !leaderboardOpen;
+    panel.style.display = leaderboardOpen ? "block" : "none";
+
+    if (leaderboardOpen) {
+        await loadLeaderboard();
+        panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+}
+
+async function loadLeaderboard() {
+    const content = document.getElementById("leaderboardContent");
+
+    if (!currentUser) {
+        content.textContent = "Pro zobrazení žebříčku se přihlas do Makuba ID.";
+        return;
+    }
+
+    content.textContent = "Načítám žebříček…";
+
+    const { data, error } = await supabase.rpc("get_game_leaderboard", {
+        p_game: "tetris"
+    });
+
+    if (error) {
+        console.error("Načtení žebříčku:", error);
+        content.textContent = "Žebříček se nepodařilo načíst. Zkus to znovu.";
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        content.textContent = "Zatím tu nejsou žádné výsledky. Zahraj si první hru!";
+        return;
+    }
+
+    const table = document.createElement("table");
+    table.className = "leaderboard-table";
+
+    const thead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+
+    ["Pořadí", "Účet", "Skóre"].forEach(label => {
+        const th = document.createElement("th");
+        th.textContent = label;
+        headerRow.appendChild(th);
+    });
+
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+
+    data.forEach(row => {
+        const tr = document.createElement("tr");
+
+        if (row.is_me) tr.className = "leaderboard-me";
+
+        const rank = document.createElement("td");
+        rank.textContent = row.rank_number + ".";
+
+        const name = document.createElement("td");
+        name.textContent = row.username;
+
+        const points = document.createElement("td");
+        points.textContent = Number(row.best_score).toLocaleString("cs-CZ");
+
+        tr.append(rank, name, points);
+        tbody.appendChild(tr);
+    });
+
+    table.appendChild(tbody);
+    content.replaceChildren(table);
+}
+
+supabase.auth.onAuthStateChange(() => {
+    setTimeout(updateAccount, 0);
+});
 
 function createBoard() {
     return Array.from({length: ROWS}, () => Array(COLS).fill(0));
@@ -522,10 +755,11 @@ function hardDrop() {
 }
 
 function updateStats() {
-    if (score > best) {
+    if (currentUser && score > best) {
         best = score;
-        localStorage.setItem("avexTetrisBest", best);
     }
+
+    scheduleScoreSave();
 
     document.getElementById("score").textContent = score;
     document.getElementById("best").textContent = best;
@@ -535,6 +769,9 @@ function updateStats() {
 
 function endGame() {
     gameOver = true;
+
+    clearTimeout(saveTimer);
+    saveScore();
 
     document.getElementById("messageTitle").textContent = "Konec hry";
     document.getElementById("messageText").textContent =
@@ -641,6 +878,7 @@ document.addEventListener("keydown", function(event) {
 
 restartGame();
 update();
+updateAccount();
 </script>
 
 </body>
