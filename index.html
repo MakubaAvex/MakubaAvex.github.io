@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="cs">
 <head>
@@ -36,6 +35,42 @@ header {
     text-decoration: none;
     font-size: 28px;
     font-weight: bold;
+}
+
+.brand-area {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.avuxy-box {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 9px 7px 12px;
+    border: 1px solid #3a3e4c;
+    border-radius: 8px;
+    background: #191b24;
+    color: #f5f6fa;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.avuxy-box[hidden] {
+    display: none !important;
+}
+
+.avuxy-plus {
+    width: 27px;
+    height: 27px;
+    border: 1px solid #4285ff;
+    border-radius: 6px;
+    background: #4285ff;
+    color: white;
+    font-size: 20px;
+    line-height: 1;
+    cursor: default;
 }
 
 .account-area {
@@ -337,7 +372,15 @@ main {
 <body>
 
 <header>
-    <a class="logo" href="index.html">Avex</a>
+    <div class="brand-area">
+        <a class="logo" href="index.html">Avex</a>
+
+        <div class="avuxy-box" id="avuxyDisplay" hidden>
+            <span>Avuxů: <strong id="avuxyCount">0</strong></span>
+            <button class="avuxy-plus" id="avuxyPlus"
+                    type="button" aria-label="Obchod s Avuxy">+</button>
+        </div>
+    </div>
 
     <div class="account-area" id="accountArea">
         <button class="auth-button" id="openLogin">Přihlásit se</button>
@@ -580,6 +623,9 @@ const submitAuth = document.getElementById("submitAuth");
 const authMessage = document.getElementById("authMessage");
 const accountArea = document.getElementById("accountArea");
 
+const avuxyDisplay = document.getElementById("avuxyDisplay");
+const avuxyCount = document.getElementById("avuxyCount");
+
 let authMode = "login";
 
 function showMessage(message, type = "") {
@@ -716,11 +762,13 @@ authForm.addEventListener("submit", async function(event) {
     }
 });
 
-/* Načtení účtu */
+/* Načtení účtu a Avuxů */
 
 async function updateAccount(user) {
 
     if (!user) {
+        avuxyDisplay.hidden = true;
+
         accountArea.innerHTML = `
             <button class="auth-button" id="openLogin">Přihlásit se</button>
             <button class="auth-button primary" id="openRegister">Registrovat se</button>
@@ -747,6 +795,25 @@ async function updateAccount(user) {
 
     if (!error && profile && profile.username) {
         username = profile.username;
+    }
+
+    /* Načtení skutečného zůstatku přihlášeného hráče */
+
+    avuxyCount.textContent = "načítání…";
+    avuxyDisplay.hidden = false;
+
+    const { data: avuxyData, error: avuxyError } = await supabaseClient
+        .from("avuxy_balances")
+        .select("balance")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+    if (avuxyError) {
+        console.error("Nepodařilo se načíst Avuxy:", avuxyError);
+        avuxyCount.textContent = "chyba";
+    } else {
+        const balance = avuxyData ? Number(avuxyData.balance) : 0;
+        avuxyCount.textContent = balance.toLocaleString("cs-CZ");
     }
 
     const safeUsername = String(username).replace(/[&<>"']/g, function(char) {
