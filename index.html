@@ -21,10 +21,12 @@ body {
 }
 
 header {
-    height: 70px;
-    padding: 0 7%;
+    min-height: 70px;
+    padding: 12px 7%;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 15px;
     background: #15161d;
     border-bottom: 1px solid #292b35;
 }
@@ -34,6 +36,40 @@ header {
     text-decoration: none;
     font-size: 28px;
     font-weight: bold;
+}
+
+.account-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+button {
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.auth-button {
+    padding: 10px 15px;
+    border-radius: 7px;
+    border: 1px solid #4285ff;
+    background: transparent;
+    color: white;
+    font-size: 14px;
+}
+
+.auth-button.primary {
+    background: #4285ff;
+}
+
+.auth-button:hover {
+    opacity: 0.85;
+}
+
+#accountName {
+    color: #c4c7d1;
+    font-size: 14px;
 }
 
 main {
@@ -88,7 +124,6 @@ main {
     border-radius: 8px;
     background: #191b24;
     color: #c4c7d1;
-    cursor: pointer;
     font-size: 14px;
 }
 
@@ -157,7 +192,123 @@ main {
     padding: 35px 10px;
 }
 
+/* Přihlašovací okno */
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0,0,0,0.78);
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    width: 100%;
+    max-width: 420px;
+    background: #191b24;
+    border: 1px solid #303340;
+    border-radius: 14px;
+    padding: 28px;
+    position: relative;
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+    font-size: 25px;
+}
+
+.close-modal {
+    position: absolute;
+    top: 15px;
+    right: 17px;
+    background: none;
+    border: none;
+    color: #a1a5b3;
+    font-size: 25px;
+}
+
+.auth-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 11px;
+    border: 1px solid #303340;
+    border-radius: 7px;
+    background: #222633;
+    color: white;
+}
+
+.auth-tab.active {
+    background: #4285ff;
+    border-color: #4285ff;
+}
+
+.auth-input {
+    display: block;
+    width: 100%;
+    padding: 13px;
+    margin-bottom: 13px;
+    background: #101116;
+    border: 1px solid #303340;
+    border-radius: 7px;
+    color: white;
+    font-size: 15px;
+    outline: none;
+}
+
+.auth-input:focus {
+    border-color: #4285ff;
+}
+
+.submit-auth {
+    width: 100%;
+    padding: 13px;
+    margin-top: 5px;
+    background: #4285ff;
+    border: none;
+    border-radius: 7px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.submit-auth:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.auth-message {
+    margin-top: 15px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #c4c7d1;
+    overflow-wrap: anywhere;
+}
+
+.auth-message.error {
+    color: #ff7777;
+}
+
+.auth-message.success {
+    color: #69d99b;
+}
+
 @media (max-width: 600px) {
+    header {
+        padding: 12px 5%;
+    }
+
     main {
         width: 90%;
         margin-top: 35px;
@@ -175,6 +326,10 @@ main {
     .game-image {
         height: 125px;
     }
+
+    .account-area {
+        justify-content: flex-end;
+    }
 }
 </style>
 </head>
@@ -183,6 +338,11 @@ main {
 
 <header>
     <a class="logo" href="index.html">Avex</a>
+
+    <div class="account-area" id="accountArea">
+        <button class="auth-button" id="openLogin">Přihlásit se</button>
+        <button class="auth-button primary" id="openRegister">Registrovat se</button>
+    </div>
 </header>
 
 <main>
@@ -213,7 +373,6 @@ main {
 
     <div class="games" id="games">
 
-        <!-- 2048 -->
         <article class="game"
                  data-category="logic"
                  data-name="2048 logická hra čísla">
@@ -236,7 +395,6 @@ main {
             </a>
         </article>
 
-        <!-- Tetris -->
         <article class="game"
                  data-category="logic"
                  data-name="tetris logická hra kostky">
@@ -274,7 +432,79 @@ main {
 
 </main>
 
+<!-- Přihlašovací okno -->
+
+<div class="modal" id="authModal">
+    <div class="modal-content">
+
+        <button class="close-modal" id="closeModal">&times;</button>
+
+        <h2>Makuba ID</h2>
+
+        <div class="auth-tabs">
+            <button class="auth-tab active" id="loginTab">Přihlášení</button>
+            <button class="auth-tab" id="registerTab">Registrace</button>
+        </div>
+
+        <form id="authForm">
+
+            <input
+                class="auth-input"
+                id="username"
+                type="text"
+                placeholder="Uživatelské jméno"
+                minlength="3"
+                maxlength="20"
+                autocomplete="username"
+                style="display:none"
+            >
+
+            <input
+                class="auth-input"
+                id="email"
+                type="email"
+                placeholder="E-mail"
+                autocomplete="email"
+                required
+            >
+
+            <input
+                class="auth-input"
+                id="password"
+                type="password"
+                placeholder="Heslo (minimálně 8 znaků)"
+                minlength="8"
+                autocomplete="current-password"
+                required
+            >
+
+            <button class="submit-auth" id="submitAuth" type="submit">
+                Přihlásit se
+            </button>
+
+        </form>
+
+        <div class="auth-message" id="authMessage" aria-live="polite"></div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+/* Makuba ID – připojení k Supabase */
+
+const SUPABASE_URL = "https://mghongtuoveswcrezymp.supabase.co";
+
+const SUPABASE_KEY = "sb_publishable_AKH-a8L3407qbAyqjtwV7Q__DlLMJaY";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+/* Vyhledávání her */
+
 const search = document.getElementById("search");
 const categoryButtons = document.querySelectorAll(".category");
 const games = document.querySelectorAll(".game");
@@ -317,7 +547,6 @@ function filterGames() {
 }
 
 search.addEventListener("input", filterGames);
-search.addEventListener("keyup", filterGames);
 
 categoryButtons.forEach(function(button) {
     button.addEventListener("click", function() {
@@ -332,7 +561,245 @@ categoryButtons.forEach(function(button) {
     });
 });
 
+/* Makuba ID – registrace a přihlášení */
+
+const modal = document.getElementById("authModal");
+const openLogin = document.getElementById("openLogin");
+const openRegister = document.getElementById("openRegister");
+const closeModal = document.getElementById("closeModal");
+
+const loginTab = document.getElementById("loginTab");
+const registerTab = document.getElementById("registerTab");
+
+const authForm = document.getElementById("authForm");
+const usernameInput = document.getElementById("username");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+
+const submitAuth = document.getElementById("submitAuth");
+const authMessage = document.getElementById("authMessage");
+const accountArea = document.getElementById("accountArea");
+
+let authMode = "login";
+
+function showMessage(message, type = "") {
+    authMessage.textContent = message;
+    authMessage.className = "auth-message " + type;
+}
+
+function setMode(mode) {
+    authMode = mode;
+
+    const registering = mode === "register";
+
+    usernameInput.style.display = registering ? "block" : "none";
+    usernameInput.required = registering;
+
+    passwordInput.autocomplete = registering
+        ? "new-password"
+        : "current-password";
+
+    loginTab.classList.toggle("active", !registering);
+    registerTab.classList.toggle("active", registering);
+
+    submitAuth.textContent = registering
+        ? "Vytvořit účet"
+        : "Přihlásit se";
+
+    showMessage("");
+}
+
+function openModal(mode) {
+    setMode(mode);
+    modal.classList.add("show");
+}
+
+openLogin.addEventListener("click", function() {
+    openModal("login");
+});
+
+openRegister.addEventListener("click", function() {
+    openModal("register");
+});
+
+closeModal.addEventListener("click", function() {
+    modal.classList.remove("show");
+});
+
+modal.addEventListener("click", function(event) {
+    if (event.target === modal) {
+        modal.classList.remove("show");
+    }
+});
+
+loginTab.addEventListener("click", function() {
+    setMode("login");
+});
+
+registerTab.addEventListener("click", function() {
+    setMode("register");
+});
+
+/* Registrace a přihlášení */
+
+authForm.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    submitAuth.disabled = true;
+    showMessage("Pracuji...");
+
+    try {
+
+        if (authMode === "register") {
+
+            const username = usernameInput.value.trim();
+
+            if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+                throw new Error(
+                    "Uživatelské jméno musí mít 3–20 znaků a obsahovat pouze písmena bez diakritiky, čísla nebo podtržítko."
+                );
+            }
+
+            if (password.length < 8) {
+                throw new Error("Heslo musí mít alespoň 8 znaků.");
+            }
+
+            const { data, error } = await supabaseClient.auth.signUp({
+                email: email,
+                password: password,
+                options: {
+                    data: {
+                        username: username
+                    },
+                    emailRedirectTo: window.location.origin + window.location.pathname
+                }
+            });
+
+            if (error) throw error;
+
+            if (data.session) {
+                showMessage("Účet byl vytvořen a jsi přihlášen!", "success");
+                authForm.reset();
+                modal.classList.remove("show");
+                await updateAccount(data.session.user);
+            } else {
+                showMessage(
+                    "Registrace proběhla. Zkontroluj svůj e-mail a potvrď registraci. Potom se můžeš přihlásit.",
+                    "success"
+                );
+                authForm.reset();
+            }
+
+        } else {
+
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+
+            if (error) throw error;
+
+            showMessage("Přihlášení proběhlo úspěšně!", "success");
+            authForm.reset();
+            modal.classList.remove("show");
+
+            await updateAccount(data.user);
+        }
+
+    } catch (error) {
+        showMessage(error.message || "Nastala chyba.", "error");
+    } finally {
+        submitAuth.disabled = false;
+    }
+});
+
+/* Načtení účtu */
+
+async function updateAccount(user) {
+
+    if (!user) {
+        accountArea.innerHTML = `
+            <button class="auth-button" id="openLogin">Přihlásit se</button>
+            <button class="auth-button primary" id="openRegister">Registrovat se</button>
+        `;
+
+        document.getElementById("openLogin").addEventListener(
+            "click", function() { openModal("login"); }
+        );
+
+        document.getElementById("openRegister").addEventListener(
+            "click", function() { openModal("register"); }
+        );
+
+        return;
+    }
+
+    let username = user.user_metadata?.username || "Uživatel";
+
+    const { data: profile, error } = await supabaseClient
+        .from("profiles")
+        .select("username")
+        .eq("id", user.id)
+        .maybeSingle();
+
+    if (!error && profile && profile.username) {
+        username = profile.username;
+    }
+
+    const safeUsername = String(username).replace(/[&<>"']/g, function(char) {
+        return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        }[char];
+    });
+
+    accountArea.innerHTML = `
+        <span id="accountName">${safeUsername}</span>
+        <button class="auth-button" id="logoutButton">Odhlásit se</button>
+    `;
+
+    document.getElementById("logoutButton").addEventListener(
+        "click", logout
+    );
+}
+
+/* Odhlášení */
+
+async function logout() {
+    const { error } = await supabaseClient.auth.signOut();
+
+    if (error) {
+        alert("Odhlášení se nepodařilo: " + error.message);
+        return;
+    }
+
+    await updateAccount(null);
+}
+
+/* Kontrola přihlášení při načtení stránky */
+
+async function initializeAuth() {
+    const { data, error } = await supabaseClient.auth.getSession();
+
+    if (!error) {
+        await updateAccount(data.session?.user || null);
+    }
+}
+
+supabaseClient.auth.onAuthStateChange(function(event, session) {
+    setTimeout(function() {
+        updateAccount(session?.user || null);
+    }, 0);
+});
+
 filterGames();
+initializeAuth();
 </script>
 
 </body>
