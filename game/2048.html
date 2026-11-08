@@ -7,9 +7,7 @@
 <title>2048 – Avex</title>
 
 <style>
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
@@ -69,8 +67,11 @@ button {
     font-weight: bold;
 }
 
-button:hover {
-    background: #70a5ff;
+button:hover { background: #70a5ff; }
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .description {
@@ -126,6 +127,7 @@ button:hover {
     align-items: center;
     margin-top: 15px;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 a {
@@ -133,8 +135,96 @@ a {
     text-decoration: none;
 }
 
-a:hover {
-    text-decoration: underline;
+a:hover { text-decoration: underline; }
+
+.account-info {
+    color: #a1a5b3;
+    font-size: 13px;
+    margin: 12px 0;
+}
+
+.game-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+#leaderboardModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    background: rgba(0,0,0,0.8);
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+}
+
+.modal-content {
+    background: #191b24;
+    border: 1px solid #303442;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.modal-header h2 {
+    color: #70a5ff;
+    margin: 0;
+}
+
+.close-button {
+    background: #303442;
+    padding: 7px 12px;
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+    padding: 10px 6px;
+    border-bottom: 1px solid #303442;
+}
+
+.leaderboard-table th {
+    color: #a1a5b3;
+    font-size: 13px;
+}
+
+.leaderboard-table td:last-child,
+.leaderboard-table th:last-child {
+    text-align: right;
+}
+
+.my-row {
+    background: #263753;
+}
+
+.leaderboard-section {
+    color: #70a5ff;
+    font-weight: bold;
+    margin: 20px 0 8px;
+}
+
+.leaderboard-message {
+    color: #a1a5b3;
+    text-align: center;
+    padding: 20px 0;
 }
 
 @media (max-width: 380px) {
@@ -156,7 +246,16 @@ a:hover {
         </div>
     </div>
 
-    <button onclick="newGame()">Nová hra</button>
+    <div class="game-buttons">
+        <button onclick="newGame()">Nová hra</button>
+        <button id="leaderboardButton" onclick="openLeaderboard()" style="display:none">
+            Žebříček
+        </button>
+    </div>
+
+    <div class="account-info" id="accountInfo">
+        Hraješ jako host. Skóre se neukládá.
+    </div>
 
     <p class="description">
         Spojuj stejné číselné dlaždice pomocí šipek na klávesnici.
@@ -170,22 +269,257 @@ a:hover {
     <div class="bottom">
         <a href="../index.html">← Zpět do Avex</a>
 
-        <div class="score-box">
-            <span>NEJLEPŠÍ SKÓRE</span>
+        <div class="score-box" id="bestBox" style="display:none">
+            <span>MOJE NEJLEPŠÍ SKÓRE</span>
             <strong id="best">0</strong>
         </div>
     </div>
 
 </div>
 
+<div id="leaderboardModal">
+    <div class="modal-content">
+
+        <div class="modal-header">
+            <h2>Žebříček 2048</h2>
+            <button class="close-button" onclick="closeLeaderboard()">Zavřít</button>
+        </div>
+
+        <div id="leaderboardContent" class="leaderboard-message">
+            Načítám žebříček...
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+const SUPABASE_URL = "https://mghongtuoveswcrezymp.supabase.co";
+const SUPABASE_KEY = "sb_publishable_AKH-a8L3407qbAyqjtwV7Q__DlLMJaY";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+let currentUser = null;
+let remoteBest = 0;
+let lastSentScore = 0;
+
 let grid = [];
 let score = 0;
-let best = Number(localStorage.getItem("avex2048best")) || 0;
 let won = false;
 let gameOver = false;
 
 const board = document.getElementById("board");
+
+async function updateAccount() {
+    const { data, error } = await supabaseClient.auth.getSession();
+
+    if (error) {
+        console.error("Chyba účtu:", error);
+        return;
+    }
+
+    currentUser = data.session ? data.session.user : null;
+
+    const accountInfo = document.getElementById("accountInfo");
+    const leaderboardButton = document.getElementById("leaderboardButton");
+    const bestBox = document.getElementById("bestBox");
+
+    if (currentUser) {
+        accountInfo.textContent = "Jsi přihlášený přes Makuba ID.";
+        leaderboardButton.style.display = "inline-block";
+        bestBox.style.display = "block";
+
+        await loadMyBest();
+    } else {
+        accountInfo.textContent = "Hraješ jako host. Skóre se neukládá.";
+        leaderboardButton.style.display = "none";
+        bestBox.style.display = "none";
+        remoteBest = 0;
+    }
+}
+
+async function loadMyBest() {
+    if (!currentUser) return;
+
+    const { data, error } = await supabaseClient.rpc(
+        "get_game_leaderboard",
+        { p_game: "2048" }
+    );
+
+    if (error) {
+        console.error("Chyba načítání skóre:", error);
+        return;
+    }
+
+    const myRow = (data || []).find(row => row.is_me === true);
+
+    remoteBest = myRow ? Number(myRow.best_score) : 0;
+    lastSentScore = remoteBest;
+
+    document.getElementById("best").textContent = remoteBest;
+}
+
+async function saveScore() {
+    if (!currentUser || score <= remoteBest || score <= lastSentScore) {
+        return;
+    }
+
+    const scoreToSave = score;
+    lastSentScore = scoreToSave;
+
+    const { error } = await supabaseClient.rpc(
+        "save_game_score",
+        {
+            p_game: "2048",
+            p_score: scoreToSave
+        }
+    );
+
+    if (error) {
+        console.error("Chyba ukládání skóre:", error);
+
+        if (lastSentScore === scoreToSave) {
+            lastSentScore = remoteBest;
+        }
+
+        return;
+    }
+
+    remoteBest = Math.max(remoteBest, scoreToSave);
+    document.getElementById("best").textContent = remoteBest;
+}
+
+async function openLeaderboard() {
+    if (!currentUser) return;
+
+    const modal = document.getElementById("leaderboardModal");
+    const content = document.getElementById("leaderboardContent");
+
+    modal.style.display = "flex";
+    content.textContent = "Načítám žebříček...";
+
+    const { data, error } = await supabaseClient.rpc(
+        "get_game_leaderboard",
+        { p_game: "2048" }
+    );
+
+    if (error) {
+        console.error("Chyba žebříčku:", error);
+        content.textContent = "Žebříček se nepodařilo načíst.";
+        return;
+    }
+
+    renderLeaderboard(data || []);
+}
+
+function renderLeaderboard(rows) {
+    const content = document.getElementById("leaderboardContent");
+    content.innerHTML = "";
+
+    if (rows.length === 0) {
+        content.textContent = "Zatím tu nejsou žádné výsledky. Zahraj si první hru!";
+        return;
+    }
+
+    const top100 = rows.filter(row => Number(row.rank_number) <= 100);
+    const myRow = rows.find(row => row.is_me === true);
+    const myRank = myRow ? Number(myRow.rank_number) : null;
+
+    function makeTable(items) {
+        const table = document.createElement("table");
+        table.className = "leaderboard-table";
+
+        const thead = document.createElement("thead");
+        const header = document.createElement("tr");
+
+        ["Pořadí", "Účet", "Skóre"].forEach(label => {
+            const th = document.createElement("th");
+            th.textContent = label;
+            header.appendChild(th);
+        });
+
+        thead.appendChild(header);
+        table.appendChild(thead);
+
+        const tbody = document.createElement("tbody");
+
+        items.forEach(row => {
+            const tr = document.createElement("tr");
+
+            if (row.is_me) {
+                tr.className = "my-row";
+            }
+
+            const rank = document.createElement("td");
+            rank.textContent = Number(row.rank_number) + ".";
+
+            const username = document.createElement("td");
+            username.textContent = row.username;
+
+            const points = document.createElement("td");
+            points.textContent = Number(row.best_score).toLocaleString("cs-CZ");
+
+            tr.appendChild(rank);
+            tr.appendChild(username);
+            tr.appendChild(points);
+
+            tbody.appendChild(tr);
+        });
+
+        table.appendChild(tbody);
+        return table;
+    }
+
+    const topTitle = document.createElement("div");
+    topTitle.className = "leaderboard-section";
+    topTitle.textContent = "TOP 100";
+    content.appendChild(topTitle);
+
+    if (top100.length > 0) {
+        content.appendChild(makeTable(top100));
+    } else {
+        const empty = document.createElement("p");
+        empty.textContent = "Zatím tu nejsou žádné výsledky.";
+        content.appendChild(empty);
+    }
+
+    if (myRow && myRank > 100) {
+        const myTitle = document.createElement("div");
+        myTitle.className = "leaderboard-section";
+        myTitle.textContent = "TVOJE UMÍSTĚNÍ";
+        content.appendChild(myTitle);
+
+        content.appendChild(makeTable([myRow]));
+    }
+}
+
+function closeLeaderboard() {
+    document.getElementById("leaderboardModal").style.display = "none";
+}
+
+document.getElementById("leaderboardModal").addEventListener("click", function(e) {
+    if (e.target === this) closeLeaderboard();
+});
+
+let authListenerStarted = false;
+
+async function startAuth() {
+    await updateAccount();
+
+    if (!authListenerStarted) {
+        authListenerStarted = true;
+
+        supabaseClient.auth.onAuthStateChange(() => {
+            setTimeout(() => {
+                updateAccount();
+            }, 0);
+        });
+    }
+}
 
 function newGame() {
     grid = Array.from({length: 4}, () => [0, 0, 0, 0]);
@@ -237,7 +571,6 @@ function draw() {
     }
 
     document.getElementById("score").textContent = score;
-    document.getElementById("best").textContent = best;
 }
 
 function slide(row) {
@@ -266,6 +599,7 @@ function move(direction) {
     if (gameOver) return;
 
     let old = JSON.stringify(grid);
+    let oldScore = score;
 
     if (direction === "left") {
         for (let r = 0; r < 4; r++) {
@@ -315,9 +649,8 @@ function move(direction) {
         addTile();
     }
 
-    if (score > best) {
-        best = score;
-        localStorage.setItem("avex2048best", best);
+    if (score > oldScore) {
+        saveScore();
     }
 
     draw();
@@ -375,6 +708,7 @@ board.addEventListener("touchend", function(e) {
 }, {passive: true});
 
 newGame();
+startAuth();
 </script>
 
 </body>
